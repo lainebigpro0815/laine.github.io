@@ -445,7 +445,7 @@
                                 <th>胸<br><span class="macro-med">中碳日</span></th>
                                 <th>休息<br><span class="macro-low">低碳日</span></th>
                                 <th>腿<br><span class="macro-high">高碳日</span></th>
-                                <th>肩<br><span class="macro-low">低碳日</span></th>
+                                <th>肩<br><span class="macro-med">中碳日</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -530,7 +530,7 @@
                         <li><strong>热量计算</strong>：1g碳水=4大卡，1g蛋白质=4大卡，1g脂肪=9大卡</li>
                         <li><strong>训练建议</strong>：高碳日安排高强度训练，低碳日安排低强度训练或休息</li>
                         <li><strong>目标调整</strong>：减脂期建议每日热量缺口300大卡，增肌期建议热量盈余300-500大卡</li>
-                        <li><strong>新训练计划</strong>：周一休息(中碳)，周二背(高碳)，周三休息(低碳)，周四胸(中碳)，周五休息(低碳)，周六腿(高碳)，周日肩(低碳)</li>
+                        <li><strong>新训练计划</strong>：周一休息(中碳)，周二背(高碳)，周三休息(低碳)，周四胸(中碳)，周五休息(低碳)，周六腿(高碳)，周日肩(中碳)</li>
                     </ul>
                 </div>
             </div>
@@ -589,19 +589,19 @@
                 
                 // 5. 计算碳水分区
                 // 高碳日2天：周二(背)、周六(腿) - 碳水占50%
-                // 中碳日2天：周一(休息)、周四(胸) - 碳水占35%
-                // 低碳日3天：周三(休息)、周五(休息)、周日(肩) - 碳水占15%
+                // 中碳日3天：周一(休息)、周四(胸) - 碳水占35%
+                // 低碳日2天：周三(休息)、周五(休息)、周日(肩) - 碳水占15%
                 
                 // 碳水计算
                 const highCarb = Math.round(weeklyCarbs * 0.5 / 2);
-                const medCarb = Math.round(weeklyCarbs * 0.35 / 2);
-                const lowCarb = Math.round(weeklyCarbs * 0.15 / 3);
+                const medCarb = Math.round(weeklyCarbs * 0.35 / 3);
+                const lowCarb = Math.round(weeklyCarbs * 0.15 / 2);
                 
                 // 脂肪计算
                 const weeklyFat = dailyFat * 7;
                 const highFat = Math.round(weeklyFat * 0.15 / 2);
-                const medFat = Math.round(weeklyFat * 0.35 / 2);
-                const lowFat = Math.round(weeklyFat * 0.5 / 3);
+                const medFat = Math.round(weeklyFat * 0.35 / 3);
+                const lowFat = Math.round(weeklyFat * 0.5 / 2);
                 
                 // 6. 更新UI
                 // 基础信息
@@ -627,7 +627,7 @@
                 document.getElementById('carb-thu').textContent = medCarb; // 周四: 胸 - 中碳
                 document.getElementById('carb-fri').textContent = lowCarb; // 周五: 休息 - 低碳
                 document.getElementById('carb-sat').textContent = highCarb; // 周六: 腿 - 高碳
-                document.getElementById('carb-sun').textContent = lowCarb; // 周日: 肩 - 低碳
+                document.getElementById('carb-sun').textContent = medCarb; // 周日: 肩 - 中碳
                 
                 // 更新脂肪行 (新计划)
                 document.getElementById('fat-mon').textContent = medFat; // 周一: 中碳日脂肪
@@ -636,7 +636,7 @@
                 document.getElementById('fat-thu').textContent = medFat; // 周四: 中碳日脂肪
                 document.getElementById('fat-fri').textContent = lowFat; // 周五: 低碳日脂肪
                 document.getElementById('fat-sat').textContent = highFat; // 周六: 高碳日脂肪
-                document.getElementById('fat-sun').textContent = lowFat; // 周日: 低碳日脂肪
+                document.getElementById('fat-sun').textContent = medFat; // 周日: 中碳日脂肪
                 
                 // 计算每日热量
                 const calMon = medCarb*4 + dailyProtein*4 + medFat*9;
@@ -645,7 +645,7 @@
                 const calThu = medCarb*4 + dailyProtein*4 + medFat*9;
                 const calFri = lowCarb*4 + dailyProtein*4 + lowFat*9;
                 const calSat = highCarb*4 + dailyProtein*4 + highFat*9;
-                const calSun = lowCarb*4 + dailyProtein*4 + lowFat*9;
+                const calSun = medCarb*4 + dailyProtein*4 + medFat*9;
                 
                 document.getElementById('cal-mon').textContent = calMon;
                 document.getElementById('cal-tue').textContent = calTue;
