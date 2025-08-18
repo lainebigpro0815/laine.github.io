@@ -325,6 +325,39 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* ===== 手机端表格自适应 ===== */
+@media (max-width: 768px) {
+  /* 让表格变成块级，可滚动 */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  /* 1. 表格整体宽度 = 屏幕 100%，取消固定列宽 */
+  #planTable {
+    width: 100%;
+    table-layout: fixed;      /* 关键：均匀分配剩余宽度 */
+  }
+
+  /* 2. 表头/单元格：文字自动换行 + 减少内边距   */
+  #planTable th,
+  #planTable td {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    white-space: normal;      /* 允许换行 */
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  /* 3. 第一列（“项目”）稍微宽一点，其余列均分 */
+  #planTable th:first-child,
+  #planTable td:first-child {
+    width: 8%;
+  }
+  #planTable th:not(:first-child),
+  #planTable td:not(:first-child) {
+    width: 16%;             /* 7 天共 7 列，100-25=75 → 75/7≈10.7%，留一点余量 */
+  }
+}
     </style>
 </head>
 <body>
@@ -430,22 +463,22 @@
                         <thead>
                             <tr>
                                 <th rowspan="2">项目</th>
-                                <th>周一</th>
-                                <th>周二</th>
-                                <th>周三</th>
-                                <th>周四</th>
-                                <th>周五</th>
-                                <th>周六</th>
-                                <th>周日</th>
+                                <th>一</th>
+                                <th>二</th>
+                                <th>三</th>
+                                <th>四</th>
+                                <th>五</th>
+                                <th>六</th>
+                                <th>日</th>
                             </tr>
                             <tr>
-                                <th>休息<br><span class="macro-med">中碳日</span></th>
-                                <th>背<br><span class="macro-high">高碳日</span></th>
-                                <th>休息<br><span class="macro-low">低碳日</span></th>
-                                <th>胸<br><span class="macro-med">中碳日</span></th>
-                                <th>休息<br><span class="macro-low">低碳日</span></th>
-                                <th>腿<br><span class="macro-high">高碳日</span></th>
-                                <th>肩<br><span class="macro-med">中碳日</span></th>
+                                <th><span class="macro-med">中<br>碳</span></th>
+                                <th><span class="macro-high">高<br>碳</span></th>
+                                <th><span class="macro-low">低<br>碳</span></th>
+                                <th><span class="macro-med">中<br>碳</span></th>
+                                <th><span class="macro-low">低<br>碳</span></th>
+                                <th><span class="macro-high">高<br>碳</span></th>
+                                <th><span class="macro-med">中<br>碳</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -490,7 +523,7 @@
                                 <td class="day-low" id="fat-sun">137</td>
                             </tr>
                             <tr>
-                                <td>当日摄入热量 (大卡)</td>
+                                <td>摄入热量 </td>
                                 <td id="cal-mon">1817</td>
                                 <td id="cal-tue">2490</td>
                                 <td id="cal-wed">2202</td>
@@ -500,11 +533,11 @@
                                 <td id="cal-sun">2202</td>
                             </tr>
                             <tr class="highlight">
-                                <td>基础代谢+日常消耗+训练 (大卡)</td>
+                                <td>消耗热量</td>
                                 <td colspan="7" id="total-expenditure">2352</td>
                             </tr>
                             <tr>
-                                <td>热量缺口/盈余 (大卡)</td>
+                                <td>缺口/盈余</td>
                                 <td id="diff-mon">-535</td>
                                 <td id="diff-tue">138</td>
                                 <td id="diff-wed">-150</td>
