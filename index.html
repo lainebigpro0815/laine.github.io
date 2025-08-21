@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>凯圣王碳循环计划表生成器</title>
+<title>凯圣王碳循环生成器</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -32,7 +32,7 @@ header .subtitle{font-size:.9rem;opacity:.9}
 .body-type-card p,.plan-card p{font-size:.6rem;margin:0;line-height:1.1}
 
 .summary-cards{display:flex;gap:8px;flex-wrap:wrap}
-.summary-card{flex:1 1 100px;background:#fff;border-radius:6px;padding:8px;text-align:center;font-size:.75rem}
+.summary-card{flex:1 1 70px;background:#fff;border-radius:6px;padding:8px;text-align:center;font-size:.75rem}
 .summary-card .val{font-size:1rem;font-weight:700;color:var(--primary)}
 .summary-card .lab{font-size:.6rem;color:#666}
 
@@ -63,19 +63,22 @@ tbody tr:nth-child(1) td{background:#e3f2fd;color:#000;font-weight:bold}
 .notes .tag.med{background:var(--med);color:#222}
 .notes .tag.low{background:var(--low);color:#222}
 footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
+
+.custom-plan{display:none;gap:4px;flex-wrap:wrap;margin-top:8px}
+.custom-plan input{flex:1 1 60px;font-size:.7rem;padding:4px 2px;text-align:center}
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <h1>凯圣王碳循环计划表生成器<br> 制作者:laine(凯门) 抖音专属版</h1>
-    <p class="subtitle">输入体重/身高/年龄 → 选胚型 → 选训练计划 → 一键生成</p>
+    <h3><blod>凯圣王碳循环智能工具-阿亮健身(凯门)</blod></h3>
+    <p class="subtitle"><strong>工具完全免费,橱窗有好物,可以支持一波</strong></p>
   </header>
 
   <div class="top-row">
     <!-- 基础信息 -->
     <section>
-      <h3>基础信息</h3>
+      <h3>第一步:输入基础信息</h3>
       <div class="basic-row">
         <div class="input-group"><label>体重(kg)</label><input type="number" id="weight" value="75" min="40" max="200"></div>
         <div class="input-group"><label>身高(cm)</label><input type="number" id="height" value="178" min="140" max="220"></div>
@@ -88,7 +91,7 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
 
     <!-- 胚型 -->
     <section>
-      <h3>胚型选择</h3>
+      <h3>第二步:选择胚型</h3>
       <div class="body-type-cards">
         <div class="body-type-card selected" data-type="ectomorph"><h4>外胚型</h4><p>易瘦</p></div>
         <div class="body-type-card" data-type="mesomorph"><h4>中胚型</h4><p>肌肉型</p></div>
@@ -98,27 +101,40 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
 
     <!-- 训练计划 -->
     <section>
-      <h3>训练计划</h3>
+      <h3>第三步:选择训练计划</h3>
       <div class="plan-cards">
         <div class="plan-card selected" data-plan="1"><h4>练1休1</h4><p>循环</p></div>
         <div class="plan-card" data-plan="2"><h4>练2休1</h4><p>循环</p></div>
         <div class="plan-card" data-plan="3"><h4>练3休1</h4><p>循环</p></div>
+        <div class="plan-card" data-plan="4"><h4>练4休1</h4><p>循环</p></div>
+        <div class="plan-card" data-plan="custom"><h4>自定义</h4><p>自由</p></div>
+      </div>
+
+      <!-- 自定义输入 -->
+      <div class="custom-plan" id="customPlan">
+        <input placeholder="周一" id="cus-mon">
+        <input placeholder="周二" id="cus-tue">
+        <input placeholder="周三" id="cus-wed">
+        <input placeholder="周四" id="cus-thu">
+        <input placeholder="周五" id="cus-fri">
+        <input placeholder="周六" id="cus-sat">
+        <input placeholder="周日" id="cus-sun">
       </div>
     </section>
 
     <!-- 宏量 -->
     <section>
-      <h3>宏量设置(g/kg)</h3>
+      <h3>营养素设置-已根据胚型自动匹配,无需调整</h3>
       <div class="macro-row">
-        <div class="input-group"><label>碳水</label><input type="number" id="carbsPerKg" value="3.0" step="0.1" min="1" max="10"></div>
-        <div class="input-group"><label>蛋白质</label><input type="number" id="proteinPerKg" value="1.3" step="0.1" min="0.8" max="3"></div>
-        <div class="input-group"><label>脂肪</label><input type="number" id="fatPerKg" value="1.1" step="0.1" min="0.5" max="2"></div>
+        <div class="input-group"><label>碳水(g/kg)</label><input type="number" id="carbsPerKg" value="3.0" step="0.1" min="1" max="10"></div>
+        <div class="input-group"><label>蛋白质(g/kg)</label><input type="number" id="proteinPerKg" value="1.3" step="0.1" min="0.8" max="3"></div>
+        <div class="input-group"><label>脂肪(g/kg)</label><input type="number" id="fatPerKg" value="1.1" step="0.1" min="0.5" max="2"></div>
       </div>
     </section>
 
     <!-- 汇总 -->
     <section>
-      <h3>关键数据</h3>
+      <h3>最后一步:点击下方计算计划</h3>
       <div class="summary-cards">
         <div class="summary-card"><span class="val" id="bmrValue">1852</span><div class="lab">基础代谢</div></div>
         <div class="summary-card"><span class="val" id="tdeeValue">2352</span><div class="lab">每日总消耗</div></div>
@@ -130,7 +146,7 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
 
   <div class="btn-row">
     <button class="btn-calc" id="calculateBtn">计算计划</button>
-    <button class="btn-down" id="downloadBtn">下载Excel</button>
+    <button class="btn-down" id="downloadBtn">下载Excel(PC端专用)</button>
     <button class="btn-reset" id="resetBtn">重置</button>
   </div>
 
@@ -149,7 +165,7 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
         </tr>
       </thead>
       <tbody>
-        <tr class="band"><td>训练部位</td><td class="editable">休息</td><td class="editable">背</td><td class="editable">休息</td><td class="editable">胸</td><td class="editable">休息</td><td class="editable">腿</td><td class="editable">肩</td></tr>
+        <tr class="band"><td>训练部位<br>(可双击自定义)</td><td class="editable">休息</td><td class="editable">背+二头</td><td class="editable">休息</td><td class="editable">胸+三头</td><td class="editable">休息</td><td class="editable">腿+肩</td><td class="editable">休息</td></tr>
         <tr class="band"><td>碳水(g)</td><td id="carb-mon">192</td><td id="carb-tue">412</td><td id="carb-wed">124</td><td id="carb-thu">192</td><td id="carb-fri">124</td><td id="carb-sat">412</td><td id="carb-sun">124</td></tr>
         <tr class="band"><td>蛋白质(g)</td><td id="protein-mon">118</td><td id="protein-tue">118</td><td id="protein-wed">118</td><td id="protein-thu">118</td><td id="protein-fri">118</td><td id="protein-sat">118</td><td id="protein-sun">118</td></tr>
         <tr class="band"><td>脂肪(g)</td><td id="fat-mon">64</td><td id="fat-tue">41</td><td id="fat-wed">137</td><td id="fat-thu">64</td><td id="fat-fri">137</td><td id="fat-sat">41</td><td id="fat-sun">137</td></tr>
@@ -162,14 +178,16 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
   <div class="notes">
     <h3>📌 碳循环计划说明</h3>
     <ul>
-      <li><strong>脂肪规则：</strong> 高碳日脂肪=一周总脂肪×15%÷2；中碳日脂肪=总脂肪×35%÷3；低碳日脂肪=总脂肪×50%÷2。</li>
-      <li><strong>计算原理：</strong> 碳水 = 体重×g/kg×比例（<span class="tag high">高50%</span> <span class="tag med">中35%</span> <span class="tag low">低15%</span>）；蛋白质固定；脂肪按上述规则。</li>
-      <li><strong>热量换算：</strong> 碳/蛋白 4 kcal/g，脂肪 9 kcal/g。</li>
-      <li><strong>目标调整：</strong> 减脂期每日缺口≈300 kcal，增肌期盈余≈300-500 kcal。</li>
-      <li><strong>训练安排：</strong> 高碳日仅胸/腿，不连续；中碳日肩背腹肌；低碳日休息。</li>
+    	<li>如果你骨架小、肩窄、吃不胖、增肌慢：<strong> → 偏外胚型</strong> </li>
+    	<li>如果你肩宽腰窄、肌肉容易长：<strong> → 偏中胚型</strong> </li>
+    	<li>如果你骨架大、腰腹易囤肉：<strong> → 偏内胚型</strong> </li>
+       <li><strong class="tag high">高碳日</strong>：碳水占总碳水的50%，建议摄入精制碳水（如白米、白面包）</li>
+       <li><strong class="tag med">中碳日</strong>：碳水占总碳水的35%，建议混合精碳和粗碳</li>
+       <li><strong class="tag low">低碳日</strong>：碳水占总碳水的15%，建议摄入粗碳（如糙米、燕麦）</li>
+       <li><strong>热量换算：</strong> 碳/蛋白 4 kcal/g，脂肪 9 kcal/g。</li>
     </ul>
   </div>
-  <footer>碳循环计划表生成器© 2025 | laine(凯门) </footer>
+  <footer>碳循环计划表生成器© 2025 | 阿亮健身(凯门) </footer>
 </div>
 
 <script>
@@ -191,64 +209,41 @@ function setMacros(type){
   calc()
 }
 
-/* ---------- 训练计划 ---------- */
+/* ---------- 显示/隐藏自定义输入 ---------- */
 const planCards = [...document.querySelectorAll('.plan-card')]
+const customDiv = $('customPlan')
 planCards.forEach(c => c.addEventListener('click', () => {
   planCards.forEach(x => x.classList.remove('selected'))
   c.classList.add('selected')
+  customDiv.style.display = c.dataset.plan === 'custom' ? 'flex' : 'none'
   calc()
 }))
 
-/* ---------- 修正后的 buildSchedule（练1休1 强制 2高3中2低） ---------- */
-function buildSchedule(plan){
-  const plan1Fixed = {
-    parts : ['休息','背','休息','胸','休息','腿','肩'],
-    carbMap : ['中','高','低','中','低','高','中']
+/* ---------- 训练部位生成 ---------- */
+function buildParts(plan){
+  switch(plan){
+    case '1': return ['休息','背+二头','休息','胸+三头','休息','腿+肩','休息']
+    case '2': return ['背+二头','胸+三头','休息','腿+肩','背+二头','休息','胸+三头']
+    case '3': return ['背+二头','胸+三头','腿+肩','休息','背+二头','胸+三头','腿+肩']
+    case '4': return ['胸+三头','背+二头','腿+肩','胸+三头','休息','背+二头','胸+三头']
+    case 'custom':
+      return ['mon','tue','wed','thu','fri','sat','sun'].map(d=>$(`cus-${d}`).value.trim()||'休息')
   }
-  if(plan==='1') return plan1Fixed
+}
 
-  /* plan 2 或 3 沿用原逻辑 */
-  const highParts=['胸','腿'], medParts=['背','肩','腹肌'], low=['休息']
-  const planMap={2:{seq:['练','练','休'],len:3},3:{seq:['练','练','练','休'],len:4}}
-  const {seq,len}=planMap[plan]
-  const days=[]
-  let idx=0
-  for(let i=0;i<7;i++){
-    days.push({train:seq[idx]==='练'})
-    idx=(idx+1)%len
-  }
-  let hi=0,mi=0
-  days.forEach(d=>{
-    if(!d.train){d.part=low[0];d.level='低';return}
-    if(hi<2){
-      d.part=highParts[hi%highParts.length]
-      d.level='高'
-      hi++
-    }else if(mi<3){
-      d.part=medParts[mi%medParts.length]
-      d.level='中'
-      mi++
-    }else{
-      d.part=low[0]
-      d.level='低'
-    }
-  })
-  const swap=(i,j)=>{
-    [days[i].part,days[i].level,days[j].part,days[j].level]=[days[j].part,days[j].level,days[i].part,days[i].level]
-  }
-  for(let i=0;i<7;i++){
-    const prev=i===0?6:i-1, next=i===6?0:i+1
-    if(days[i].level==='高' && days[prev].level==='高') swap(i,next)
-    if(days[i].level===days[prev].level && days[i].level!=='低'){
-      for(let j=0;j<7;j++){
-        if(j!==i && days[j].level!==days[i].level && days[j].level!==days[prev===j?next:prev].level){
-          swap(i,j)
-          break
-        }
-      }
-    }
-  }
-  return {parts:days.map(d=>d.part),carbMap:days.map(d=>d.level)}
+/* ---------- 2高3中2低且不连续 ---------- */
+function buildCarbMap() {
+  // 7 种官方无连续高碳/低碳的排列
+  const candidates = [
+    ['高','中','低','高','中','低','中'],
+    ['高','低','中','高','低','中','中'],
+    ['中','高','低','中','高','低','中'],
+    ['中','低','高','中','低','高','中'],
+    ['低','高','中','低','高','中','中'],
+    ['低','中','高','低','中','高','中'],
+    ['中','中','高','低','中','高','低']
+  ]
+  return candidates[Math.floor(Math.random()*candidates.length)]
 }
 
 /* ---------- 主计算 ---------- */
@@ -261,20 +256,21 @@ function calc(){
   const tdee=bmr+500
   const pro=Math.round(pp*w)
   const weekC=Math.round(cp*w*7)
-  const weekF=Math.round(fp*w*7)          // 一周总脂肪
-  const hc=Math.round(weekC*.5/2)         // 高碳日碳水
-  const mc=Math.round(weekC*.35/3)        // 中碳日碳水
-  const lc=Math.round(weekC*.15/2)        // 低碳日碳水
-  const hf=Math.round(weekF*.15/2)        // 高碳日脂肪
-  const mf=Math.round(weekF*.35/3)        // 中碳日脂肪
-  const lf=Math.round(weekF*.50/2)        // 低碳日脂肪
+  const weekF=Math.round(fp*w*7)
+  const hc=Math.round(weekC*.5/2)
+  const mc=Math.round(weekC*.35/3)
+  const lc=Math.round(weekC*.15/2)
+  const hf=Math.round(weekF*.15/2)
+  const mf=Math.round(weekF*.35/3)
+  const lf=Math.round(weekF*.50/2)
 
   $('bmrValue').textContent=Math.round(bmr)
   $('tdeeValue').textContent=Math.round(tdee)
   $('proteinValue').textContent=pro
   $('carbsValue').textContent=weekC
 
-  const {parts,carbMap}=buildSchedule(plan)
+  const parts=buildParts(plan)
+  const carbMap=plan==='custom'?buildCarbMap():buildCarbMap() // 统一调用
   const dayKeys=['mon','tue','wed','thu','fri','sat','sun']
   const carbNum=dayKeys.map((_,i)=>{
     switch(carbMap[i]){
@@ -309,7 +305,7 @@ function calc(){
   })
 }
 
-/* ---------- 导出&重置 ---------- */
+/* ---------- 导出 & 重置 ---------- */
 function dl(){
   const wb=XLSX.utils.book_new()
   const ws=XLSX.utils.table_to_sheet($('planTable'))
@@ -320,6 +316,7 @@ function reset(){
   $('weight').value=75;$('height').value=178;$('age').value=30;$('gender').value='male'
   bodyCards[0].click()
   planCards[0].click()
+  ;['mon','tue','wed','thu','fri','sat','sun'].forEach(d=>$(`cus-${d}`).value='')
 }
 
 /* ---------- 事件 ---------- */
