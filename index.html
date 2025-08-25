@@ -72,7 +72,7 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
 <div class="container">
   <header>
     <h3><blod>凯圣王碳循环智能工具-阿亮健身(凯门)</blod></h3>
-    <p class="subtitle"><strong>工具完全免费,橱窗有好物,可以支持一波</strong></p>
+    <p class="subtitle"><strong>橱窗有碳循环必备营养素,感谢各位兄弟</strong></p>
   </header>
 
   <div class="top-row">
@@ -80,7 +80,7 @@ footer{color:#fff;text-align:center;font-size:.6rem;margin-top:20px;opacity:.7}
     <section>
       <h3>第一步:输入基础信息</h3>
       <div class="basic-row">
-        <div class="input-group"><label>体重(kg)</label><input type="number" id="weight" value="75" min="40" max="200"></div>
+        <div class="input-group"><label>当前体重(kg)</label><input type="number" id="weight" value="75" min="40" max="200"></div>
         <div class="input-group"><label>身高(cm)</label><input type="number" id="height" value="178" min="140" max="220"></div>
         <div class="input-group"><label>年龄(岁)</label><input type="number" id="age" value="30" min="18" max="80"></div>
         <div class="input-group"><label>性别</label>
@@ -231,19 +231,75 @@ function buildParts(plan){
   }
 }
 
-/* ---------- 2高3中2低且不连续 ---------- */
-function buildCarbMap() {
-  // 7 种官方无连续高碳/低碳的排列
-  const candidates = [
-    ['高','中','低','高','中','低','中'],
-    ['高','低','中','高','低','中','中'],
-    ['中','高','低','中','高','低','中'],
-    ['中','低','高','中','低','高','中'],
-    ['低','高','中','低','高','中','中'],
-    ['低','中','高','低','中','高','中'],
-    ['中','中','高','低','中','高','低']
-  ]
-  return candidates[Math.floor(Math.random()*candidates.length)]
+/* ---------- 碳水平映射生成（根据训练计划） ---------- */
+function buildCarbMap(plan, parts) {
+  // 判断是否为休息日
+  const isRestDay = parts.map(part => part === '休息');
+  
+  // 根据不同的训练计划生成不同的碳水平映射
+  if (plan === '1') {
+    // 练1休1模式：确保高碳日不在休息日
+    const candidates = [
+      ['中','高','低','中','低','高','中'],
+      ['低','高','中','低','中','高','中'],
+      ['中','高','中','低','中','高','低']
+    ].filter(pattern => {
+      // 确保高碳日不在休息日
+      for (let i = 0; i < 7; i++) {
+        if (pattern[i] === '高' && isRestDay[i]) {
+          return false;
+        }
+      }
+      return true;
+    });
+    
+    // 如果有符合条件的模式，随机选择一个
+    if (candidates.length > 0) {
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+    
+    // 如果没有符合条件的模式，使用默认模式
+    return ['中','高','低','中','低','高','中'];
+  } else if (plan === 'custom') {
+    // 自定义计划：确保高碳日不在休息日
+    const candidates = [
+      ['高','中','低','高','中','低','中'],
+      ['高','低','中','高','低','中','中'],
+      ['中','高','低','中','高','低','中'],
+      ['中','低','高','中','低','高','中'],
+      ['低','高','中','低','高','中','中'],
+      ['低','中','高','低','中','高','中'],
+      ['中','中','高','低','中','高','低']
+    ].filter(pattern => {
+      // 确保高碳日不在休息日
+      for (let i = 0; i < 7; i++) {
+        if (pattern[i] === '高' && isRestDay[i]) {
+          return false;
+        }
+      }
+      return true;
+    });
+    
+    // 如果有符合条件的模式，随机选择一个
+    if (candidates.length > 0) {
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+    
+    // 如果没有符合条件的模式，使用默认模式
+    return ['中','高','低','中','高','低','中'];
+  } else {
+    // 其他训练计划：使用原来的随机选择
+    const candidates = [
+      ['高','中','低','高','中','低','中'],
+      ['高','低','中','高','低','中','中'],
+      ['中','高','低','中','高','低','中'],
+      ['中','低','高','中','低','高','中'],
+      ['低','高','中','低','高','中','中'],
+      ['低','中','高','低','中','高','中'],
+      ['中','中','高','低','中','高','低']
+    ];
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }
 }
 
 /* ---------- 主计算 ---------- */
@@ -270,7 +326,7 @@ function calc(){
   $('carbsValue').textContent=weekC
 
   const parts=buildParts(plan)
-  const carbMap=plan==='custom'?buildCarbMap():buildCarbMap() // 统一调用
+  const carbMap=buildCarbMap(plan, parts)
   const dayKeys=['mon','tue','wed','thu','fri','sat','sun']
   const carbNum=dayKeys.map((_,i)=>{
     switch(carbMap[i]){
