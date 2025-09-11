@@ -1494,79 +1494,69 @@ function generateOrangePlan(initialCarbs, protein, fat, weeklyLoss, estimatedWee
 }
 
         // 橙子碳水渐降导出功能
-        function dlOrangeCarb() {
-            const w = +$('orange-weight').value
-            const h = +$('orange-height').value
-            const a = +$('orange-age').value
-            const g = $('orange-gender').value === 'male' ? '男' : '女'
-            const trainTime = +$('train-time').value
-            const intensity = +$('train-intensity').value
-            const weightLossPercent = +weightLossSlider.value
-            
-            // 获取选中的比例
-            const selectedRatio = document.querySelector('.orange-ratio-card.selected').dataset.ratio
-            let ratioText = ''
-            
-            if(selectedRatio === 'custom') {
-                ratioText = `自定义: ${$('custom-carb').value}%碳水, ${$('custom-protein').value}%蛋白, ${$('custom-fat').value}%脂肪`
-            } else if(selectedRatio === '532') {
-                ratioText = '50%碳水 30%蛋白 20%脂肪'
-            } else {
-                ratioText = '40%碳水 40%蛋白 20%脂肪'
-            }
-            
-            const bmr = +$('orange-bmrValue').textContent
-            const trainCalories = +$('orange-trainCalories').textContent
-            const tdee = +$('orange-tdeeValue').textContent
-            const initialCarbs = +$('orange-initialCarbs').textContent
-            const protein = +$('orange-protein').textContent
-            const fat = +$('orange-fat').textContent
-            const weeklyLoss = +$('orange-weeklyLoss').textContent
-            const estimatedWeeks = +$('orange-estimatedWeeks').textContent
-            const estimatedDate = $('orange-estimatedDate').textContent
-            
-            const basicRows = [
-                ['基础信息','','','','','','',''],
-                ['当前体重(kg)', w,'','','','','',''],
-                ['身高(cm)', h,'','','','','',''],
-                ['年龄(岁)', a,'','','','','',''],
-                ['性别', g,'','','','','',''],
-                ['训练时长(分钟)', trainTime,'','','','','',''],
-                ['训练强度系数', intensity,'','','','','',''],
-                ['每周减重百分比', `${weightLossPercent}%`,'','','','','',''],
-                ['营养素比例', ratioText,'','','','','',''],
-                ['','','','','','','',''],
-                ['计算结果','','','','','','',''],
-                ['基础代谢(BMR)', bmr,'','','','','',''],
-                ['训练消耗热量', trainCalories,'','','','','',''],
-                ['每日总消耗(TDEE)', tdee,'','','','','',''],
-                ['初始碳水(g)', initialCarbs,'','','','','',''],
-                ['蛋白质(g)', protein,'','','','','',''],
-                ['脂肪(g)', fat,'','','','','',''],
-                ['周减重目标(kg)', weeklyLoss,'','','','','',''],
-                ['预计周数', estimatedWeeks,'','','','','',''],
-                ['预计完成日期', estimatedDate,'','','','','',''],
-                ['','','','','','','','']
-            ];
-            
-            const planRows = [
-                ['碳水渐降计划','','','','','',''],
-                ['周数', '碳水摄入(g)', '蛋白质摄入(g)', '脂肪摄入(g)', '预期体重(kg)', '周减重目标(kg)', '调整说明']
-            ];
-            
-            // 添加计划内容
-            const planRowsData = Array.from($('orange-planBody').querySelectorAll('tr'))
-            planRowsData.forEach(tr => {
-                const tds = Array.from(tr.querySelectorAll('td'))
-                planRows.push([tds[0].textContent, tds[1].textContent, tds[2].textContent, tds[3].textContent, tds[4].textContent, tds[5].textContent, tds[6].textContent])
-            })
-            
-            const fullData = [...basicRows, ...planRows];
-            const ws = XLSX.utils.aoa_to_sheet(fullData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, '碳水渐降计划');
-            XLSX.writeFile(wb, `碳水渐降_${w}kg.xlsx`);
-        }
+        // 橙子碳水渐降导出功能（修复版）
+function dlOrangeCarb() {
+    const w = +$('orange-weight').value,
+          h = +$('orange-height').value,
+          a = +$('orange-age').value,
+          g = $('orange-gender').value === 'male' ? '男' : '女',
+          trainTime = +$('train-time').value,
+          intensity = +$('train-intensity').value,
+          weightLossPercent = +$('weight-loss-percent').value;
+
+    const ratioCard = document.querySelector('.orange-ratio-card.selected'),
+          ratioText = ratioCard.dataset.ratio === 'custom'
+              ? `自定义: ${$('custom-carb').value}%碳水, ${$('custom-protein').value}%蛋白, ${$('custom-fat').value}%脂肪`
+              : ratioCard.dataset.ratio === '532'
+                  ? '50%碳水 30%蛋白 20%脂肪'
+                  : '40%碳水 40%蛋白 20%脂肪';
+
+    const bmr = +$('orange-bmrValue').textContent,
+          trainCal = +$('orange-trainCalories').textContent,
+          tdee = +$('orange-tdeeValue').textContent,
+          initCarb = +$('orange-initialCarbs').textContent,
+          protein = +$('orange-protein').textContent,
+          fat = +$('orange-fat').textContent,
+          weeklyLoss = +$('orange-weeklyLoss').textContent;
+
+    /* ---------- 基础信息部分 ---------- */
+    const basic = [
+        ['基础信息','','','','','','',''],
+        ['当前体重(kg)', w],
+        ['身高(cm)', h],
+        ['年龄(岁)', a],
+        ['性别', g],
+        ['训练时长(分钟)', trainTime],
+        ['训练强度系数', intensity],
+        ['每月减重百分比', `${weightLossPercent}%`],
+        ['营养素比例', ratioText],
+        [], [],
+        ['计算结果'],
+        ['基础代谢(BMR)', bmr],
+        ['训练消耗热量', trainCal],
+        ['每日总消耗(TDEE)', tdee],
+        ['初始碳水(g)', initCarb],
+        ['蛋白质(g)', protein],
+        ['脂肪(g)', fat],
+        ['周减重目标(kg)', weeklyLoss],
+        [], []
+    ];
+
+    /* ---------- 计划表部分 ---------- */
+    const plan = [
+        ['碳水渐降计划'],
+        ['周数','每日碳水(g)','每日蛋白质(g)','每日脂肪(g)','预期体重(kg)','周减重目标(kg)','调整说明']
+    ];
+    Array.from($('orange-planBody').querySelectorAll('tr')).forEach(tr => {
+        plan.push(Array.from(tr.querySelectorAll('td')).map(td => td.textContent));
+    });
+
+    const data = [...basic, ...plan];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '碳水渐降计划');
+    XLSX.writeFile(wb, `碳水渐降_${w}kg.xlsx`);
+}
 
         // 橙子碳水渐降重置功能
         function resetOrangeCarb(){
