@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>健身营养智能工具-阿亮健身</title>
+    <title>阿亮健身营养智能工具</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* 全局样式 */
@@ -614,7 +614,7 @@
 <body>
     <!-- 首页 -->
     <div id="home-page" class="container home-container">
-        <h1>健身营养智能工具-阿亮健身</h1>
+        <h1>阿亮健身营养智能工具</h1>
         <p class="home-subtitle">食谱制定服务可加vx:ll8819112</p>
         <!-- 体脂率参考区域 -->
 <div style="text-align:center; margin:0 auto 5px;">   <!-- 统一控制间距 -->
@@ -821,7 +821,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="band"><td>训练部位<br>(可双击自定义)</td><td class="editable">休息</td><td class="editable">背+二头</td><td class="editable">休息</td><td class="editable">胸+三头</td><td class="editable">休息</td><td class="editable">腿+肩</td><td class="editable">休息</td></tr>
+                            <tr class="band"><td>训练部位<br>(可双击自定义)</td><td class="editable">休息</td><td class="editable">胸+三头</td><td class="editable">休息</td><td class="editable">背+二头</td><td class="editable">休息</td><td class="editable">腿+肩</td><td class="editable">休息</td></tr>
                             <tr class="band"><td>碳水(g)</td><td id="carb-mon">192</td><td id="carb-tue">412</td><td id="carb-wed">124</td><td id="carb-thu">192</td><td id="carb-fri">124</td><td id="carb-sat">412</td><td id="carb-sun">124</td></tr>
                             <tr class="band"><td>蛋白质(g)</td><td id="protein-mon">118</td><td id="protein-tue">118</td><td id="protein-wed">118</td><td id="protein-thu">118</td><td id="protein-fri">118</td><td id="protein-sat">118</td><td id="protein-sun">118</td></tr>
                             <tr class="band"><td>脂肪(g)</td><td id="fat-mon">64</td><td id="fat-tue">41</td><td id="fat-wed">137</td><td id="fat-thu">64</td><td id="fat-fri">137</td><td id="fat-sat">41</td><td id="fat-sun">137</td></tr>
@@ -1016,7 +1016,7 @@
                 </div>
             </div>
 
-            <footer>健身营养计划生成器© 2025 · 阿亮健身(凯门)</footer>
+            <footer>阿亮健身营养智能工具© 2025 · 阿亮健身(凯门)</footer>
         </div>
     </div>
 
@@ -1086,10 +1086,10 @@
         // 训练部位生成
         function buildParts(plan){
             switch(plan){
-                case '1': return ['休息','背+二头','休息','胸+三头','休息','腿+肩','休息']
-                case '2': return ['背+二头','胸+三头','休息','腿+肩','背+二头','休息','胸+三头']
-                case '3': return ['背+二头','胸+三头','腿+肩','休息','背+二头','胸+三头','腿+肩']
-                case '4': return ['胸+三头','背+二头','腿+肩','胸+三头','休息','背+二头','胸+三头']
+                case '1': return ['休息','胸+三头','休息','背+二头','休息','腿+肩','休息']
+                case '2': return ['胸+三头','背+二头','休息','腿+肩','胸+三头','休息','背+二头']
+                case '3': return ['胸+三头','背+二头','腿+肩','休息','胸+三头','背+二头','腿+肩']
+                case '4': return ['胸+三头','背+二头','腿+肩','胸+三头','休息','背+二头','腿+肩']
                 case 'custom':
                     return ['mon','tue','wed','thu','fri','sat','sun'].map(d=>$(`cus-${d}`).value.trim()||'休息')
             }
@@ -1629,5 +1629,71 @@ function toggleBodyTypeRef() {
         validateCustomRatio()
         calcOrangeCarb();
     </script>
+<!-- ========= 1. 全屏水印 ========= -->
+<script>
+(function(){
+  const canvas = document.createElement('canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width = 320;
+  canvas.height = 320;
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillStyle = 'rgba(60,60,60,0.25)'; // 深灰 35% 不透明度
+  ctx.textAlign = 'center';
+  ctx.translate(160,160);
+  ctx.rotate(-Math.PI/6);
+  ctx.fillText('© 阿亮健身,禁止转载/商用',0,0);
+  ctx.rotate(Math.PI/6);
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;background:url('+canvas.toDataURL()+') repeat';
+  document.body.appendChild(div);
+})();
+</script>
+
+<!-- ========= 2. 禁用右键 & 常用开发者快捷键 ========= -->
+<script>
+['contextmenu','keydown'].forEach(function(ev){
+  document.addEventListener(ev,function(e){
+    if(ev==='contextmenu'||
+       (ev==='keydown' && (
+         e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J') ||
+         e.ctrlKey&&e.key==='U' ||
+         e.key==='F12'
+       ))){
+      e.preventDefault(); return false;
+    }
+  });
+});
+</script>
+
+<!-- ========= 3. 复制时追加版权 ========= -->
+<script>
+document.addEventListener('copy',function(e){
+  const sel = window.getSelection().toString();
+  if(!sel) return;
+  const copyText = sel + '\n\n© 2025 阿亮健身 | 未授权仅限个人使用 | 禁止转载、商用 | 违者必究';
+  e.clipboardData.setData('text/plain', copyText);
+  e.preventDefault();
+});
+</script>
+
+<!-- ========= 4. 页面底部固定版权栏 ========= -->
+<style>
+#copyright-bar{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  height:32px;
+  background:#0ea5e9;
+  color:#fff;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  letter-spacing:.5px;
+}
+</style>
+<div id="copyright-bar">
+  © 2025 阿亮健身 | 仅限个人使用 | 禁止转载、商用 | 违者必究
+</div>
 </body>
 </html>
