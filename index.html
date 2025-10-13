@@ -347,7 +347,8 @@
         .btn-back{background:var(--dark)}
         .btn-row button:hover{opacity:.9}
         
-        .table-wrap{overflow-x:auto;margin-top:16px}
+  .table-wrap{overflow-x:auto;margin-top:16px}
+#planTable{min-width:1400px}   /* 28 列撑开 */
         table{width:100%;border-collapse:collapse;font-size:.75rem}
         th,td{border:1px solid #e2e8f0;padding:6px 4px;text-align:center}
         th{background:#f1f5f9;color:#0ea5e9;font-weight:600}
@@ -610,7 +611,24 @@
             margin-bottom: 15px;
           }
         }
+        /* ===== 竖向周表 ===== */
+.week-tables{margin-top:16px;font-size:.75rem;}
+.week-table{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.week-title{color:#0ea5e9;font-weight:600;margin-bottom:8px;font-size:.9rem;}
+.week-table table{width:100%;border-collapse:collapse;}
+.week-table th,.week-table td{border:1px solid #e2e8f0;padding:6px 4px;text-align:center;}
+.week-table th{background:#f1f5f9;color:#0ea5e9;font-weight:600;font-size:.7rem;}
+.week-table .high{background:var(--high);color:#0c4a6e}
+.week-table .med{background:var(--med);color:#0c4a6e}
+.week-table .low{background:var(--low);color:#78350f}
     </style>
+    <style>
+/* 仅隐藏横向 28 列表格，其余一切保持原样 */
+#planTable {
+    display: none !important;
+}
+</style>
+<base target="_blank">
 </head>
 <body>
     <!-- 首页 -->
@@ -803,25 +821,23 @@
                         </div>
                         <div class="target-stat">
                             <div class="value" id="targetDate">2023-12-24</div>
-                            <div class="label">减掉5公斤纯脂肪的预计完成日期</div>
+                            <div class="label">预计完成日期</div>
                         </div>
                     </div>
                 </div>
+<!-- 竖向周表容器 -->
+<div id="weekTables" class="week-tables"></div>
 
+<!-- 原表继续保留，但只隐藏 table，不隐藏后面的说明 -->
+<div class="table-wrap">
+  <table id="planTable" style="display:none;">  </table>
+</div>
                 <div class="table-wrap">
                     <table id="planTable">
                         <thead>
-                            <tr><th rowspan="2">项目</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th><th>日</th></tr>
-                            <tr id="carbLevelRow">
-                                <th class="med">中</th>
-                                <th class="high">高</th>
-                                <th class="low">低</th>
-                                <th class="med">中</th>
-                                <th class="low">低</th>
-                                <th class="high">高</th>
-                                <th class="med">中</th>
-                            </tr>
-                        </thead>
+  <tr id="dayRow"><th rowspan="2">项目</th></tr>
+  <tr id="carbLevelRow"></tr>
+</thead>
                         <tbody>
                             <tr class="band"><td>训练部位<br>(可双击自定义)</td><td class="editable">休息</td><td class="editable">胸+三头</td><td class="editable">休息</td><td class="editable">背+二头</td><td class="editable">休息</td><td class="editable">腿+肩</td><td class="editable">休息</td></tr>
                             <tr class="band"><td>碳水(g)</td><td id="carb-mon">192</td><td id="carb-tue">412</td><td id="carb-wed">124</td><td id="carb-thu">192</td><td id="carb-fri">124</td><td id="carb-sat">412</td><td id="carb-sun">124</td></tr>
@@ -832,7 +848,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 <div class="notes">
                     <h3>📌 碳循环计划说明</h3>
                     <ul>
@@ -1250,6 +1265,20 @@
                     return ['mon','tue','wed','thu','fri','sat','sun'].map(d=>$(`cus-${d}`).value.trim()||'休息')
             }
         }
+        // 生成 28 天的训练部位
+function build28Parts(plan) {
+  const oneWeek = buildParts(plan);
+  const arr = [];
+  for (let i = 0; i < 28; i++) arr.push(oneWeek[i % 7]);
+  return arr;
+}
+// 生成 28 天的碳水平
+function build28CarbMap(plan, parts28) {
+  const oneWeek = buildCarbMap(plan, parts28.slice(0, 7));
+  const arr = [];
+  for (let i = 0; i < 28; i++) arr.push(oneWeek[i % 7]);
+  return arr;
+}
 
         // 碳水平映射生成（根据训练计划）
        // 凯圣王碳循环专用：写死碳日分布
@@ -1339,118 +1368,257 @@ function oldRandomCarbMap(plan, parts) {
                 }
             })
 
-            const trParts=document.querySelector('#planTable tbody tr:nth-child(1)')
-            const trLevel=document.querySelector('#carbLevelRow')
-            parts.forEach((p,i)=>{
-                trParts.children[i+1].textContent=p
-                trLevel.children[i].className=carbMap[i]==='高'?'high':(carbMap[i]==='中'?'med':'low')
-                trLevel.children[i].textContent=carbMap[i]
-            })
+         /* ---------- 28 天版本 ---------- */
+// 改成
+/* ---------- 28 天硬编码（练 X 休 1） ---------- */
+const parts28 = (() => {
+  const map = {
+    /* 练 1 休 1 */
+    '1': [
+      '胸+三头','休息','背+二头','休息','腿+肩','休息','胸+三头',
+      '休息','背+二头','休息','腿+肩','休息','胸+三头','休息',
+      '背+二头','休息','腿+肩','休息','胸+三头','休息','背+二头',
+      '休息','腿+肩','休息','胸+三头','休息','背+二头','休息'
+    ],
+    /* 练 2 休 1 */
+    '2': [
+      '胸+三头','背+二头','休息','腿+肩','胸+三头','休息','背+二头',
+  '腿+肩','休息','胸+三头','背+二头','休息','腿+肩','胸+三头',
+  '休息','背+二头','腿+肩','休息','胸+三头','背+二头','休息',
+  '腿+肩','胸+三头','休息','背+二头','腿+肩','休息','胸+三头'
+    ],
+    /* 练 3 休 1 */
+    '3': [
+      '胸+三头','背+二头','腿+肩','休息','胸+三头','背+二头','腿+肩',
+      '休息','胸+三头','背+二头','腿+肩','休息','胸+三头','背+二头',
+      '腿+肩','休息','胸+三头','背+二头','腿+肩','休息','胸+三头',
+      '背+二头','腿+肩','休息','胸+三头','背+二头','腿+肩','休息'
+    ],
+    /* 练 4 休 1 */
+    '4': [
+ '胸+三头','背+二头','腿+肩','胸+三头','休息','背+二头','腿+肩',
+      '胸+三头','背+二头','休息','腿+肩','胸+三头','背+二头','腿+肩',
+      '休息','胸+三头','背+二头','腿+肩','胸+三头','休息','背+二头',
+      '腿+肩','胸+三头','背+二头','休息','腿+肩','胸+三头','背+二头'
+    ]
+  };
+  return plan === 'custom'
+    ? buildParts(plan).concat(...Array(3).fill(buildParts(plan))).flat()
+    : map[plan] || map['1'];
+})();
+/* ---------- 28 天碳水平硬编码 ---------- */
+window.carb28 = (() => {
+  const map = {
+    /* 练 1 休 1  →  高碳日落在训练日，低碳日落在休息日 */
+    '1': [
+ '高','低','中','低','高','中','中',
+      '低','中','中','高','中','高','低',
+      '中','低','高','中','高','低','中',
+      '低','高','中','高','低','中','中'
+    ],
+    /* 练 2 休 1  →  每 3 天：高、中、低 */
+    '2': [
+   '高','中','低','高','中','低','中',
+      '高','低','中','中','低','高','中',
+      '低','中','高','低','高','中','中',
+      '高','中','低','中','高','低','中'
+    ],
+    /* 练 3 休 1  →  每 4 天：高、中、高、低 */
+    '3': [
+ '中','低','高','低','中','中','高',
+      '低','高','中','高','低','中','中',
+      '高','低','中','中','高','低','中',
+      '中','高','低','中','中','高','低'
+    ],
+    /* 练 4 休 1  →  每 5 天：高、中、高、中、低 */
+    '4': [
+   '中','低','高','中','低','中','高',
+      '中','中','低','高','中','低','高',
+      '低','高','中','高','中','低','中',
+      '高','中','中','低','高','中','低'
+    ]
+  };
+  return map[plan] || map['1'];   // 防呆
+})();
+const dayRow       = $('dayRow');
+const carbLevelRow = $('carbLevelRow');
+dayRow.innerHTML = '<th rowspan="2">项目</th>';
+carbLevelRow.innerHTML = '';
 
-            const dailyDiffs=[]
-            dayKeys.forEach((d,i)=>{
-                $(`carb-${d}`).textContent=carbNum[i]
-                $(`protein-${d}`).textContent=pro
-                $(`fat-${d}`).textContent=fats[i]
-                const cal=carbNum[i]*4+pro*4+fats[i]*9
-                $(`cal-${d}`).textContent=cal
-                const diff=Math.round(cal - tdee)
-                dailyDiffs.push(diff)
-                $(`diff-${d}`).innerHTML=`<span style="color:${diff>0?(diff>300?'#10b981':'#f59e0b'):'#f43f5e'}">${diff>0?'+':''}${diff}</span>`
-            })
+for (let i = 0; i < 28; i++) {
+  const dayTh = document.createElement('th');
+  dayTh.textContent = ['一','二','三','四','五','六','日'][i % 7];
+  dayRow.appendChild(dayTh);
 
-            const weightDiff = targetW - w
-            const weeklyCalorieDiff = dailyDiffs.reduce((sum, diff) => sum + diff, 0)
-            let daysNeeded = 0
-            let targetDateText = ''
-            if (weightDiff > 0 && weeklyCalorieDiff < 0) {
-                targetDateText = '无法完成，请增加碳水'
-            } else if (weightDiff < 0 && weeklyCalorieDiff > 0) {
-                targetDateText = '无法完成，请减少碳水'
-            } else if (weeklyCalorieDiff === 0) {
-                targetDateText = '热量平衡，请调整计划'
-            } else {
-                daysNeeded = Math.abs(Math.round((weightDiff * 7700) / (weeklyCalorieDiff / 7)))
-                const today = new Date()
-                const targetDate = new Date(today)
-                targetDate.setDate(today.getDate() + daysNeeded)
-                targetDateText = targetDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
-            }
-            $('weightDiffValue').textContent = weightDiff > 0 ? `+${weightDiff}` : weightDiff
-            $('weightDiffValue').style.color = weightDiff > 0 ? '#10b981' : (weightDiff < 0 ? '#f43f5e' : '#334155')
-            $('weeklyCalorieDiffValue').textContent = weeklyCalorieDiff > 0 ? `+${weeklyCalorieDiff}` : weeklyCalorieDiff
-            $('weeklyCalorieDiffValue').style.color = weeklyCalorieDiff > 0 ? '#10b981' : (weeklyCalorieDiff < 0 ? '#f43f5e' : '#334155')
-            $('daysNeededValue').textContent = daysNeeded || '—'
-            $('targetDate').textContent = targetDateText
+  const carbTh = document.createElement('th');
+  carbTh.className = carb28[i]==='高'?'high':(carb28[i]==='中'?'med':'low');
+  carbTh.textContent = carb28[i];
+  carbLevelRow.appendChild(carbTh);
+}
+
+/* 训练部位行 */
+const trParts = document.querySelector('#planTable tbody tr:nth-child(1)');
+trParts.innerHTML = '<td>训练部位<br>(可双击自定义)</td>';
+parts28.forEach(p=> {
+  const td = document.createElement('td');
+  td.className = 'editable';
+  td.textContent = p;
+  trParts.appendChild(td);
+});
+
+/* 营养素 & 热量 5 行 */
+const labels = ['碳水(g)','蛋白质(g)','脂肪(g)','热量(kcal)','缺口/盈余'];
+[2,3,4,5,6].forEach((rowIdx, idx) => {
+  const tr = document.querySelector(`#planTable tbody tr:nth-child(${rowIdx})`);
+  tr.innerHTML = `<td>${labels[idx]}</td>`;
+  for (let i = 0; i < 28; i++) {
+    const td = document.createElement('td');
+    const cVal = carb28[i]==='高'?hc:(carb28[i]==='中'?mc:lc);
+    const fVal = carb28[i]==='高'?hf:(carb28[i]==='中'?mf:lf);
+    switch(idx){
+      case 0: td.textContent = cVal; break;
+      case 1: td.textContent = pro; break;
+      case 2: td.textContent = fVal; break;
+      case 3: td.textContent = cVal*4 + pro*4 + fVal*9; break;
+      case 4: {
+        const cal = cVal*4 + pro*4 + fVal*9;
+        const diff = Math.round(cal - tdee);
+        td.innerHTML = `<span style="color:${diff>0?(diff>300?'#10b981':'#f59e0b'):'#f43f5e'}">${diff>0?'+':''}${diff}</span>`;
+        break;
+      }
+    }
+    tr.appendChild(td);
+  }
+});
+/* ---------- 28 天版本结束 ---------- */
+/* 渲染竖向周表 */
+renderWeekTables();
+          // ✅ 计算每日热量差（基于28天表格）
+// ✅ 计算每日热量差（基于28天表格）
+const diffs28 = [];
+for (let i = 0; i < 28; i++) {
+  const cVal = carb28[i] === '高' ? hc : (carb28[i] === '中' ? mc : lc);
+  const fVal = carb28[i] === '高' ? hf : (carb28[i] === '中' ? mf : lf);
+  const cal = cVal * 4 + pro * 4 + fVal * 9;
+  diffs28.push(cal - tdee);
+}
+
+const weeklyCalorieDiff = Math.round(diffs28.reduce((sum, d) => sum + d, 0) / 4);
+const weightDiff = targetW - w;
+
+let daysNeeded = 0;
+let targetDateText = '';
+
+// ✅ 新增：目标增重但热量赤字 → 提示无法完成
+if (weightDiff > 0 && weeklyCalorieDiff < 0) {
+  targetDateText = '目标为增重，但当前计划为热量赤字，无法完成目标，请调整计划';
+} else if (weightDiff < 0 && weeklyCalorieDiff > 0) {
+  targetDateText = '目标为减重，但当前计划为热量盈余，无法完成目标，请调整计划';
+} else if (weeklyCalorieDiff === 0) {
+  targetDateText = '热量平衡，请调整计划';
+} else {
+  daysNeeded = Math.abs(Math.round((weightDiff * 7700) / (weeklyCalorieDiff / 7)));
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() + daysNeeded);
+  targetDateText = targetDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ✅ 更新页面
+$('weightDiffValue').textContent = weightDiff > 0 ? `+${weightDiff}` : weightDiff;
+$('weightDiffValue').style.color = weightDiff > 0 ? '#10b981' : (weightDiff < 0 ? '#f43f5e' : '#334155');
+
+$('weeklyCalorieDiffValue').textContent = weeklyCalorieDiff > 0 ? `+${weeklyCalorieDiff}` : weeklyCalorieDiff;
+$('weeklyCalorieDiffValue').style.color = weeklyCalorieDiff > 0 ? '#10b981' : (weeklyCalorieDiff < 0 ? '#f43f5e' : '#334155');
+
+$('daysNeededValue').textContent = daysNeeded || '—';
+$('targetDate').textContent = targetDateText;
+            
         }
 
         // 凯圣王碳循环导出 & 重置
-        function dlKingsCycle() {
-            const w   = +$('weight').value;
-            const tgt = +$('targetWeight').value;
-            const h   = +$('height').value;
-            const a   = +$('age').value;
-            const g   = $('gender').value === 'male' ? '男' : '女';
-            const bmr = +$('bmrValue').textContent;
-            const tdee= +$('tdeeValue').textContent;
-            const pro = +$('proteinValue').textContent;
-            const weekCarb = +$('carbsValue').textContent;
-            const weightDiff  = +$('weightDiffValue').textContent;
-            const weekDiffKcal= +$('weeklyCalorieDiffValue').textContent;
-            const daysNeed    = $('daysNeededValue').textContent;
-            const finishDate  = $('targetDate').textContent;
+       /* =========  凯圣王碳循环－竖向 4 周表（修复版） ========= */
+function dlKingsCycle() {
+  /* 1. 基础信息（保持与原一致） */
+  const w   = +$('weight').value,
+        tgt = +$('targetWeight').value,
+        h   = +$('height').value,
+        a   = +$('age').value,
+        g   = $('gender').value === 'male' ? '男' : '女',
+        bmr = +$('bmrValue').textContent,
+        tdee= +$('tdeeValue').textContent,
+        pro = +$('proteinValue').textContent,
+        weekCarb = +$('carbsValue').textContent,
+        weightDiff  = +$('weightDiffValue').textContent,
+        weekDiffKcal= +$('weeklyCalorieDiffValue').textContent,
+        daysNeed    = $('daysNeededValue').textContent,
+        finishDate  = $('targetDate').textContent;
 
-            const basicRows = [
-                ['基础信息','','','','','','',''],
-                ['当前体重(kg)', w,'','','','','',''],
-                ['目标体重(kg)', tgt,'','','','','',''],
-                ['身高(cm)', h,'','','','','',''],
-                ['年龄(岁)', a,'','','','','',''],
-                ['性别', g,'','','','','',''],
-                ['基础代谢(kcal)', bmr,'','','','','',''],
-                ['每日总消耗(kcal)', tdee,'','','','','',''],
-                ['每日蛋白(g)', pro,'','','','','',''],
-                ['每周碳水(g)', weekCarb,'','','','','',''],
-                ['','','','','','','',''],
-                ['目标分析','','','','','','',''],
-                ['体重差(kg)', weightDiff,'','','','','',''],
-                ['周热量差(kcal)', weekDiffKcal,'','','','','',''],
-                ['预计天数', daysNeed,'','','','','',''],
-                ['预计完成日期', finishDate,'','','','','',''],
-                ['','','','','','','','']
-            ];
+  const basicRows = [
+    ['基础信息'], 
+    ['当前体重(kg)', w], 
+    ['目标体重(kg)', tgt], 
+    ['身高(cm)', h], 
+    ['年龄(岁)', a], 
+    ['性别', g], 
+    ['基础代谢(kcal)', bmr], 
+    ['每日总消耗(kcal)', tdee], 
+    ['每日蛋白(g)', pro], 
+    ['每周碳水(g)', weekCarb], 
+    [], 
+    ['目标分析'], 
+    ['体重差(kg)', weightDiff], 
+    ['周热量差(kcal)', weekDiffKcal], 
+    ['预计天数', daysNeed], 
+    ['预计完成日期', finishDate]
+  ];
 
-            const thead = ['项目','周一','周二','周三','周四','周五','周六','周日'];
-            const planRows = [thead];
-            const parts = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(1) td')).slice(1).map(td=>td.textContent);
-            planRows.push(['训练部位', ...parts]);
-            const levels = Array.from(document.querySelectorAll('#carbLevelRow th')).map(th=>th.textContent);
-            planRows.push(['碳水平', ...levels]);
-            const labels = ['碳水(g)','蛋白质(g)','脂肪(g)','热量(kcal)','缺口/盈余(kcal)'];
-            [2,3,4,5,6].forEach(i=>{
-                const tds = Array.from(document.querySelectorAll(`#planTable tbody tr:nth-child(${i}) td`)).slice(1);
-                planRows.push([labels[i-2], ...tds.map(td=>td.textContent)]);
-            });
+  /* 2. 抓取 28 列数据（修复：提取纯数字） */
+  const parts  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(1) td')).slice(1).map(td=>td.textContent);
+  const carbs  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(2) td')).slice(1).map(td=>+td.textContent);
+  const pros   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(3) td')).slice(1).map(td=>td.textContent);
+  const fats   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(4) td')).slice(1).map(td=>td.textContent);
+  const cals   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(5) td')).slice(1).map(td=>td.textContent);
+  
+  // 修复：提取纯数字，移除HTML标签
+  const diffs  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(6) td')).slice(1).map(td=>{
+    const text = td.textContent || td.innerText;
+    // 提取数字部分（包括正负号）
+    const match = text.match(/[-+]?\d+/);
+    return match ? match[0] : '0';
+  });
 
-            const fullData = [...basicRows, ...planRows];
-            const ws = XLSX.utils.aoa_to_sheet(fullData);
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = 0; R <= range.e.r; R++) {
-                for (let C = range.s.c; C <= range.e.c; C++) {
-                    const cell = ws[XLSX.utils.encode_cell({r:R, c:C})];
-                    if (!cell) continue;
-                    cell.s = cell.s || {};
-                    if (R < basicRows.length && C === 0) { cell.s.font = {bold:true}; }
-                    if (R === basicRows.length + 1) {
-                        cell.s.font = {bold:true, color:{rgb:"FFFFFF"}};
-                        cell.s.fill = {fgColor:{rgb:"0284c7"}, patternType:"solid"};
-                    }
-                }
-            }
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, '碳循环完整计划');
-            XLSX.writeFile(wb, `碳循环_${w}kg.xlsx`);
+  /* 3. 直接生成 4 张竖向周表 */
+  const weekDays = ['一','二','三','四','五','六','日'];
+  const planRows = [];
+  for (let w = 0; w < 4; w++) {
+    planRows.push([], [`第 ${w+1} 周`]);
+    planRows.push(['项目', ...weekDays]);
+    planRows.push(['碳日', ...weekDays.map((_,i)=>window.carb28[w*7+i])]);
+    const labels = ['训练部位','碳水(g)','蛋白质(g)','脂肪(g)','热量(kcal)','缺口/盈余(kcal)'];
+    labels.forEach((lab, idx)=>{
+      const row = [lab];
+      for (let d = 0; d < 7; d++) {
+        const col = w*7+d;
+        switch(idx){
+          case 0: row.push(parts[col]); break;
+          case 1: row.push(carbs[col]); break;
+          case 2: row.push(pros[col]);  break;
+          case 3: row.push(fats[col]);  break;
+          case 4: row.push(cals[col]);  break;
+          case 5: row.push(diffs[col]); break; // 现在这里是纯数字
         }
+      }
+      planRows.push(row);
+    });
+  }
+
+  /* 4. 合并 & 导出 */
+  const fullData = [...basicRows, ...planRows];
+  const ws = XLSX.utils.aoa_to_sheet(fullData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '碳循环竖向周表');
+  XLSX.writeFile(wb, `碳循环竖表_${w}kg.xlsx`);
+}
 
         function resetKingsCycle(){
             $('weight').value=75;
@@ -2019,6 +2187,77 @@ document.addEventListener('DOMContentLoaded', () => {
         weightLossValue.textContent = `${weightLossSlider.value}%`
         validateCustomRatio()
         calcOrangeCarb();
+        /* ========= 竖向周表渲染 ========= */
+/* ========= 竖向周表（4 张独立表，沿用横表彩色表头模式） ========= */
+function renderWeekTables(){
+    const weekTables=$('weekTables');
+    weekTables.innerHTML='';
+
+    /* 1. 抓 28 列数据 */
+    const parts  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(1) td')).slice(1).map(td=>td.textContent);
+    const carbs  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(2) td')).slice(1).map(td=>+td.textContent);
+    const pros   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(3) td')).slice(1).map(td=>td.textContent);
+    const fats   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(4) td')).slice(1).map(td=>td.textContent);
+    const cals   = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(5) td')).slice(1).map(td=>td.textContent);
+    const diffs  = Array.from(document.querySelectorAll('#planTable tbody tr:nth-child(6) td')).slice(1).map(td=>td.innerHTML);
+
+    /* 2. 碳日判定（复用横表阈值） */
+    
+    const [hc, mc, lc] = (()=>{
+        const w=+$('weight').value, cPerKg=+$('carbsPerKg').value;
+        const weekC=Math.round(cPerKg*w*7);
+        return [
+            Math.round(weekC*0.50/2),
+            Math.round(weekC*0.35/3),
+            Math.round(weekC*0.15/2)
+        ];
+    })();
+   const carbLevel = g => g === '高' ? 'high' : (g === '中' ? 'med' : 'low');
+
+    /* 3. 一周中文名 */
+    const weekDays=['一','二','三','四','五','六','日'];
+
+    /* 4. 生成 4 张竖向表 */
+    for (let w = 0; w < 4; w++) {
+  const carbHeadRow = weekDays.map((_, i) => {
+    const lvl = window.carb28[w * 7 + i];   // ← 关键：同一套 carb28
+    const cls = carbLevel(lvl);
+    return `<th class="${cls}">${lvl}</th>`;
+  }).join('');
+
+        const html=`
+          <div class="week-table">
+     
+            <table>
+              <thead>
+                <tr><th>第 ${w+1} 周</th>${weekDays.map(d=>`<th>${d}</th>`).join('')}</tr>
+                <tr><th>碳日</th>${carbHeadRow}</tr>
+              </thead>
+              <tbody>
+                <tr><td>训练部位</td>${weekDays.map((_,i)=>`<td class="editable">${parts[w*7+i]}</td>`).join('')}</tr>
+                <tr><td>碳水(g)</td>${weekDays.map((_,i)=>`<td>${carbs[w*7+i]}</td>`).join('')}</tr>
+                <tr><td>蛋白质(g)</td>${weekDays.map((_,i)=>`<td>${pros[w*7+i]}</td>`).join('')}</tr>
+                <tr><td>脂肪(g)</td>${weekDays.map((_,i)=>`<td>${fats[w*7+i]}</td>`).join('')}</tr>
+                <tr><td>热量(kcal)</td>${weekDays.map((_,i)=>`<td>${cals[w*7+i]}</td>`).join('')}</tr>
+                <tr><td>缺口/盈余</td>${weekDays.map((_,i)=>`<td>${diffs[w*7+i]}</td>`).join('')}</tr>
+              </tbody>
+            </table>
+          </div>`;
+        weekTables.insertAdjacentHTML('beforeend',html);
+    }
+
+    /* 5. 保留双击编辑 */
+    weekTables.querySelectorAll('.editable').forEach(cell=>{
+        cell.addEventListener('dblclick',()=>{
+            const v=cell.textContent;
+            cell.innerHTML=`<input value="${v}" style="width:100%;font-size:.7rem">`;
+            const inp=cell.querySelector('input');
+            inp.focus();
+            inp.onblur=inp.onkeydown=e=>{if(e.type==='blur'||e.key==='Enter')cell.textContent=inp.value||v;};
+        });
+    });
+    
+}
     </script>
 <!-- ========= 1. 全屏水印 ========= -->
 <script>
